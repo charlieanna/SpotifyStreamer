@@ -1,18 +1,17 @@
 package com.example.android.spotifystreamer;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -45,29 +44,6 @@ public class SearchArtistFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mArtists = new ArrayList<Artist>();
         mArtistAdapter = new ArtistAdapter(mArtists);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.search_artist, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_search) {
-            new SearchArtist().execute(searchArtistEditText.getText().toString());
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -80,10 +56,28 @@ public class SearchArtistFragment extends Fragment {
         artistsList = (ListView) v.findViewById(R.id.artist_search_result);
 
         artistsList.setAdapter(mArtistAdapter);
+
+        Button searchButton = (Button)v.findViewById(R.id.search_artist);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new SearchArtist().execute(searchArtistEditText.getText().toString());
+            }
+        });
         return v;
     }
 
     public class SearchArtist extends AsyncTask<String, Void, List<Artist>> {
+
+        ProgressDialog mSearching;
+
+        @Override
+        protected void onPreExecute() {
+            mSearching = new ProgressDialog(getActivity());
+            mSearching.setMessage("Searching...");
+            mSearching.show();
+        }
 
         @Override
         protected List<Artist> doInBackground(String... params) {
@@ -110,6 +104,7 @@ public class SearchArtistFragment extends Fragment {
             else{
                 Toast.makeText(getActivity(), "Artist not found", Toast.LENGTH_LONG);
             }
+            mSearching.dismiss();
         }
     }
 
