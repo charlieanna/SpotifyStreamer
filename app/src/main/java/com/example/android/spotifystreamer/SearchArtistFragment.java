@@ -6,12 +6,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -53,6 +54,19 @@ public class SearchArtistFragment extends Fragment {
 
         searchArtistEditText = (EditText) v.findViewById(R.id.artist_search_edit_text);
 
+        searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_NULL
+                        && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    new SearchArtist().execute(searchArtistEditText.getText().toString());
+
+                }
+                return true;
+            }
+
+        });
+
         artistsList = (ListView) v.findViewById(R.id.artist_search_result);
 
         artistsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,14 +83,6 @@ public class SearchArtistFragment extends Fragment {
 
         artistsList.setAdapter(mArtistAdapter);
 
-        Button searchButton = (Button)v.findViewById(R.id.search_artist);
-
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new SearchArtist().execute(searchArtistEditText.getText().toString());
-            }
-        });
         return v;
     }
 
@@ -114,9 +120,10 @@ public class SearchArtistFragment extends Fragment {
             if (!mArtists.isEmpty())
                 mArtistAdapter.notifyDataSetChanged();
             else{
-                Toast.makeText(getActivity(), "Artist not found", Toast.LENGTH_LONG);
+                mSearching.dismiss();
+                Toast.makeText(SearchArtistFragment.this.getActivity(), "Artist not found", Toast.LENGTH_SHORT).show();
             }
-            mSearching.dismiss();
+
         }
     }
 

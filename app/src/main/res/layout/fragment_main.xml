@@ -15,12 +15,8 @@
        android:layout_width="0dp"
        android:layout_height="wrap_content"
        android:layout_weight="1"
+       android:singleLine="true"
        android:id="@+id/artist_search_edit_text"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_artist"
-        android:background="@drawable/abc_ic_go_search_api_mtrl_alpha"/>
   </LinearLayout>
     
     <ListView

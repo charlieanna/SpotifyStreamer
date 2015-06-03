@@ -29,17 +29,17 @@ import kaaes.spotify.webapi.android.models.Tracks;
  */
 public class ArtistSongsFragment extends ListFragment {
     private String mArtistId;
-    private ArrayAdapter<Track> mTrackAdapter;
-    private List<Track> mTracks;
+    ArrayList<ArtistTrack> list;
+    private ArrayAdapter<ArtistTrack> mTrackAdapter;
+    private List<ArtistTrack> mTracks;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getActivity().getIntent();
         mArtistId = intent.getStringExtra(Intent.EXTRA_TEXT);
-        mTracks = new ArrayList<Track>();
+        mTracks = new ArrayList<ArtistTrack>();
         mTrackAdapter = new TracksAdapter(mTracks);
         setListAdapter(mTrackAdapter);
-        new FetchTopSongs().execute(mArtistId);
     }
 
     @Override
@@ -49,9 +49,39 @@ public class ArtistSongsFragment extends ListFragment {
         return inflater.inflate(R.layout.fragment_artist_songs, container, false);
     }
 
-    public class FetchTopSongs extends AsyncTask<String, Void, List<Track>>{
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mTracks != null){
+            list = new ArrayList<ArtistTrack>();
+            for(int i = 0; i < mTracks.size(); i++) {
+                ArtistTrack track = mTracks.get(i);
+                list.add(track);
+            }
+        }
+        outState.putParcelableArrayList("key", list);
+        super.onSaveInstanceState(outState);
+    }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            // Restore last state for checked position.
+            ArrayList<ArtistTrack> artistTracks = savedInstanceState.getParcelableArrayList("key");
+            if (!(artistTracks == null))
+                mTrackAdapter.clear();
+            mTracks.addAll(artistTracks);
+            if (!mTrackAdapter.isEmpty())
+                mTrackAdapter.notifyDataSetChanged();
+        }
+        else{
+            new FetchTopSongs().execute(mArtistId);
+        }
+    }
+
+
+    public class FetchTopSongs extends AsyncTask<String, Void, List<ArtistTrack>>{
         @Override
-        protected void onPostExecute(List<Track> tracks) {
+        protected void onPostExecute(List<ArtistTrack> tracks) {
             if (!(tracks == null))
                 mTrackAdapter.clear();
             mTracks.addAll(tracks);
@@ -60,7 +90,7 @@ public class ArtistSongsFragment extends ListFragment {
         }
 
         @Override
-        protected List<Track> doInBackground(String... params) {
+        protected List<ArtistTrack> doInBackground(String... params) {
             String artistid = params[0];
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
@@ -68,15 +98,22 @@ public class ArtistSongsFragment extends ListFragment {
             query.put("country","US");
             Tracks tracks = spotify.getArtistTopTrack(artistid, query);
 
-            List<Track> mTracks = tracks.tracks;
+            List<Track> lTracks = tracks.tracks;
+            ArrayList<ArtistTrack> list = new ArrayList<ArtistTrack>();
+            for(int i=0; i< lTracks.size(); i++){
+                Track track = lTracks.get(i);
+                String thumbnail = track.album.images.get(track.album.images.size() - 2).url;
+                ArtistTrack artistTrack = new ArtistTrack(track.name, track.album.name, thumbnail);
+                list.add(artistTrack);
+            }
 
-            return mTracks;
+            return list;
         }
     }
 
-    private class TracksAdapter extends ArrayAdapter<Track> {
+    private class TracksAdapter extends ArrayAdapter<ArtistTrack> {
 
-        public TracksAdapter(List<Track> tracks) {
+        public TracksAdapter(List<ArtistTrack> tracks) {
             super(getActivity(), 0, tracks);
         }
 
@@ -89,20 +126,17 @@ public class ArtistSongsFragment extends ListFragment {
                         .inflate(R.layout.list_track_view, null);
             }
 
-            final Track track = getItem(position);
+            final ArtistTrack track = getItem(position);
             TextView trackTextView =
                     (TextView) convertView.findViewById(R.id.track_name);
-            trackTextView.setText(track.name);
+            trackTextView.setText(track.getTrackName());
 
             TextView albumTextView =
                     (TextView) convertView.findViewById(R.id.album_name);
-            albumTextView.setText(track.album.name);
-
+            albumTextView.setText(track.getAlbumName());
 
             final ImageView img = (ImageView) convertView.findViewById(R.id.track_preview);
-            String thumbnail = track.album.images.get(track.album.images.size() - 2).url;
-
-            Picasso.with(getContext()).load(thumbnail).placeholder(R.drawable.user).into(img);
+            Picasso.with(getContext()).load(track.getAlbumCover()).placeholder(R.drawable.user).into(img);
             return convertView;
         }
     }
