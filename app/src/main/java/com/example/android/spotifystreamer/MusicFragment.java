@@ -75,7 +75,7 @@ public class MusicFragment extends Fragment {
         int secondsComplete = (int) (completedmilliseconds / 1000) % 60 ;
         int minutesComplete = (int) ((completedmilliseconds / (1000*60)) % 60);
 
-        trackDuration.setText(minutesComplete + ":" + secondsComplete);
+        completed.setText(minutesComplete + ":" + secondsComplete);
     }
 
     @Override

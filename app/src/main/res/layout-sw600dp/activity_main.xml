@@ -15,13 +15,13 @@ This layout is a two-pane layout for the Sunshine master/detail flow.
     android:name="com.example.android.spotifystreamer.SearchArtistFragment"
     android:layout_width="0dp"
     android:layout_height="match_parent"
-    android:layout_weight="3"
+    android:layout_weight="4"
     tools:layout="@layout/fragment_main" />
 
 <FrameLayout
     android:id="@+id/tracks_list_container"
     android:layout_width="0dp"
     android:layout_height="match_parent"
-    android:layout_weight="4" />
+    android:layout_weight="5" />
 
 </LinearLayout>

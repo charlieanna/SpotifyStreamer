@@ -55,7 +55,7 @@ public class ArtistSongsFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_artist_songs, container, false);
-        listview = (ListView)view.findViewById(R.id.tracks_list_container);
+        listview = (ListView)view.findViewById(R.id.tracks_list_view);
         listview.setAdapter(mTrackAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -96,6 +96,10 @@ public class ArtistSongsFragment extends Fragment {
             mTracks.addAll(artistTracks);
             if (!mTrackAdapter.isEmpty())
                 mTrackAdapter.notifyDataSetChanged();
+        }
+        else{
+            if(mArtistId != null)
+                new FetchTopSongs().execute(mArtistId);
         }
     }
 
