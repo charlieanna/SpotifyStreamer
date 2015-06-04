@@ -120,10 +120,9 @@ public class SearchArtistFragment extends Fragment {
             if (!mArtists.isEmpty())
                 mArtistAdapter.notifyDataSetChanged();
             else{
-                mSearching.dismiss();
                 Toast.makeText(SearchArtistFragment.this.getActivity(), "Artist not found", Toast.LENGTH_SHORT).show();
             }
-
+            mSearching.dismiss();
         }
     }
 

@@ -22,6 +22,10 @@
             android:name=".ArtistSongsActivity"
             android:label="@string/title_activity_artist_songs" >
         </activity>
+        <activity
+            android:name=".MusicActivity"
+            android:label="@string/title_activity_music" >
+        </activity>
     </application>
 
 </manifest>

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -40,6 +41,18 @@ public class ArtistSongsFragment extends ListFragment {
         mTracks = new ArrayList<ArtistTrack>();
         mTrackAdapter = new TracksAdapter(mTracks);
         setListAdapter(mTrackAdapter);
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        ArtistTrack track = (ArtistTrack)getListAdapter().getItem(position);
+        int index = list.indexOf(track);
+        Intent intent = new Intent(getActivity(), MusicActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("list", list);
+        bundle.putInt("index", index);
+        intent.putExtra("bundle", bundle);
+        startActivity(intent);
     }
 
     @Override
@@ -99,11 +112,11 @@ public class ArtistSongsFragment extends ListFragment {
             Tracks tracks = spotify.getArtistTopTrack(artistid, query);
 
             List<Track> lTracks = tracks.tracks;
-            ArrayList<ArtistTrack> list = new ArrayList<ArtistTrack>();
+            list = new ArrayList<ArtistTrack>();
             for(int i=0; i< lTracks.size(); i++){
                 Track track = lTracks.get(i);
                 String thumbnail = track.album.images.get(track.album.images.size() - 2).url;
-                ArtistTrack artistTrack = new ArtistTrack(track.name, track.album.name, thumbnail);
+                ArtistTrack artistTrack = new ArtistTrack(track.artists.get(0).name, track.name, track.album.name, thumbnail, track.preview_url, track.duration_ms);
                 list.add(artistTrack);
             }
 
