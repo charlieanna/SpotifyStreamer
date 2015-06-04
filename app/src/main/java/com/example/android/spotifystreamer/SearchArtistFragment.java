@@ -39,7 +39,12 @@ public class SearchArtistFragment extends Fragment {
     private ListView artistsList;
     private EditText searchArtistEditText;
     private List<Artist> mArtists;
-
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(String artist_id);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +82,7 @@ public class SearchArtistFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), ArtistSongsActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, artist.id);
                 startActivity(intent);
+                ((Callback) getActivity()).onItemSelected(artist.id);
             }
         });
 

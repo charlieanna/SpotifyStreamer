@@ -1,12 +1,13 @@
 package com.example.android.spotifystreamer;
 
-import android.app.ListFragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -28,8 +29,9 @@ import kaaes.spotify.webapi.android.models.Tracks;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ArtistSongsFragment extends ListFragment {
+public class ArtistSongsFragment extends Fragment {
     private String mArtistId;
+    private ListView listview;
     ArrayList<ArtistTrack> list;
     private ArrayAdapter<ArtistTrack> mTrackAdapter;
     private List<ArtistTrack> mTracks;
@@ -40,26 +42,35 @@ public class ArtistSongsFragment extends ListFragment {
         mArtistId = intent.getStringExtra(Intent.EXTRA_TEXT);
         mTracks = new ArrayList<ArtistTrack>();
         mTrackAdapter = new TracksAdapter(mTracks);
-        setListAdapter(mTrackAdapter);
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        ArtistTrack track = (ArtistTrack)getListAdapter().getItem(position);
-        int index = list.indexOf(track);
-        Intent intent = new Intent(getActivity(), MusicActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("list", list);
-        bundle.putInt("index", index);
-        intent.putExtra("bundle", bundle);
-        startActivity(intent);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_artist_songs, container, false);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mArtistId = arguments.getString(Intent.EXTRA_TEXT);
+        }
+
+
+        View view = inflater.inflate(R.layout.fragment_artist_songs, container, false);
+        listview = (ListView)view.findViewById(R.id.tracks_list_container);
+        listview.setAdapter(mTrackAdapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ArtistTrack track = (ArtistTrack)listview.getAdapter().getItem(position);
+                int index = list.indexOf(track);
+                Intent intent = new Intent(getActivity(), MusicActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("list", list);
+                bundle.putInt("index", index);
+                intent.putExtra("bundle", bundle);
+                startActivity(intent);
+            }
+        });
+        return view;
     }
 
     @Override
@@ -85,9 +96,6 @@ public class ArtistSongsFragment extends ListFragment {
             mTracks.addAll(artistTracks);
             if (!mTrackAdapter.isEmpty())
                 mTrackAdapter.notifyDataSetChanged();
-        }
-        else{
-            new FetchTopSongs().execute(mArtistId);
         }
     }
 
