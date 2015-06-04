@@ -36,6 +36,10 @@ public class MusicFragment extends Fragment {
     private MediaController mediaController;
     private Button btnPlay;
     private int currentTrackIndex;
+    TextView album;
+    ImageView albumCover;
+    TextView trackView;
+    TextView trackDuration;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +55,29 @@ public class MusicFragment extends Fragment {
         Log.i("", list.toString());
     }
 
+    public void updateView(){
+        album.setText(currentTrack.getAlbumName());
+
+        Picasso.with(getActivity()).load(currentTrack.getAlbumCover()).placeholder(R.drawable.user).into(albumCover);
+
+        trackView.setText(currentTrack.getTrackName());
+        long milliseconds = currentTrack.getSongLength();
+        int seconds = (int) (milliseconds / 1000) % 60 ;
+        int minutes = (int) ((milliseconds / (1000*60)) % 60);
+
+
+        trackDuration.setText(minutes + ":" + seconds);
+
+
+
+        long completedmilliseconds = mediaPlayer.getCurrentPosition();
+
+        int secondsComplete = (int) (completedmilliseconds / 1000) % 60 ;
+        int minutesComplete = (int) ((completedmilliseconds / (1000*60)) % 60);
+
+        trackDuration.setText(minutesComplete + ":" + secondsComplete);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,15 +86,11 @@ public class MusicFragment extends Fragment {
         TextView artist = (TextView) view.findViewById(R.id.artist_name);
         artist.setText(currentTrack.getArtistName());
 
-        TextView album = (TextView) view.findViewById(R.id.album_name);
-        album.setText(currentTrack.getAlbumName());
+        album = (TextView) view.findViewById(R.id.album_name);
 
-        ImageView albumCover = (ImageView) view.findViewById(R.id.track_preview);
+        trackView = (TextView) view.findViewById(R.id.track_name);
 
-        Picasso.with(getActivity()).load(currentTrack.getAlbumCover()).placeholder(R.drawable.user).into(albumCover);
-
-        TextView trackView = (TextView) view.findViewById(R.id.track_name);
-        trackView.setText(currentTrack.getTrackName());
+        albumCover = (ImageView) view.findViewById(R.id.track_preview);
 
         btnPlay = (Button) view.findViewById(R.id.play);
 
@@ -101,6 +124,8 @@ public class MusicFragment extends Fragment {
                     playSong(0);
                     currentTrackIndex = 0;
                 }
+                currentTrack = list.get(currentTrackIndex);
+                updateView();
             }
         });
 
@@ -117,26 +142,10 @@ public class MusicFragment extends Fragment {
                     playSong(list.size() - 1);
                     currentTrackIndex = list.size() - 1;
                 }
+                currentTrack = list.get(currentTrackIndex);
+                updateView();
             }
         });
-
-        TextView trackDuration = (TextView)view.findViewById(R.id.track_duration);
-        long milliseconds = currentTrack.getSongLength();
-        int seconds = (int) (milliseconds / 1000) % 60 ;
-        int minutes = (int) ((milliseconds / (1000*60)) % 60);
-
-
-        trackDuration.setText(minutes + ":" + seconds);
-
-        completed = (TextView)view.findViewById(R.id.track_completed);
-
-        long completedmilliseconds = mediaPlayer.getCurrentPosition();
-
-        int secondsComplete = (int) (completedmilliseconds / 1000) % 60 ;
-        int minutesComplete = (int) ((completedmilliseconds / (1000*60)) % 60);
-
-        trackDuration.setText(minutesComplete + ":" + secondsComplete);
-
         volumeControl = (SeekBar) view.findViewById(R.id.volume_bar);
 
         volumeControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -162,6 +171,12 @@ public class MusicFragment extends Fragment {
                 Log.i("", "");
             }
         });
+        trackDuration = (TextView)view.findViewById(R.id.track_duration);
+        completed = (TextView)view.findViewById(R.id.track_completed);
+
+        updateView();
+
+
 
         return view;
     }
